@@ -1,26 +1,23 @@
 package com.thechase.routes
 
 import com.thechase.API_VERSION
-import com.thechase.auth.MySession
 import com.thechase.models.Question
 import com.thechase.repository.Repository
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.locations.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.sessions.*
 
 const val QUESTIONS = "$API_VERSION/questions"
 
-@KtorExperimentalLocationsAPI
 fun Route.questions(db: Repository) {
-//    authenticate("jwt") {
-    postQuestion(db)
-    getQuestions(db)
-    deleteQuestion(db)
-//    }
+    authenticate("jwt") {
+        postQuestion(db)
+        getQuestions(db)
+        deleteQuestion(db)
+    }
 }
 
 private fun Route.getQuestions(db: Repository) {

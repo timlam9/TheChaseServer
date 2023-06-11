@@ -16,6 +16,8 @@ interface Repository {
     suspend fun deleteUser(userId: Int)
     suspend fun findUser(userId: Int): User?
     suspend fun findUserByEmail(email: String): User?
+    suspend fun getUsers(): List<User?>
+
 
     suspend fun addQuestion(text: String, answers: List<Answer>): Question?
     suspend fun deleteQuestion(questionId: Int)

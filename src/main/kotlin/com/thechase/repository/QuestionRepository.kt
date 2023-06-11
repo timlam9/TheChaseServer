@@ -41,6 +41,12 @@ class QuestionRepository : Repository {
             .map { rowToUser(it) }.singleOrNull()
     }
 
+    override suspend fun getUsers(): List<User?> {
+        return transaction {
+            Users.selectAll().map { rowToUser(it) }
+        }
+    }
+
     override suspend fun addQuestion(text: String, answers: List<Answer>): Question? {
         var question: com.thechase.repository.Question? = null
 
