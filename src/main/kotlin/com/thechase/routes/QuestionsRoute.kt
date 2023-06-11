@@ -69,22 +69,11 @@ private fun Route.postQuestion(db: Repository) {
 
 private fun Route.deleteQuestion(db: Repository) {
     delete(QUESTIONS) {
-        val questionsParameters = call.receive<Parameters>()
-        if (!questionsParameters.contains("id")) {
-            return@delete call.respond(HttpStatusCode.BadRequest, "Missing Question Id")
-        }
-
-        val questionId =
-            questionsParameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest, "Missing Question Id")
-        val user = call.sessions.get<MySession>()?.let { db.findUser(it.userId) }
-
-        if (user == null) {
-            call.respond(HttpStatusCode.BadRequest, "Problems retrieving User")
-            return@delete
-        }
+        val id = call.request.queryParameters["id"]
+            ?: return@delete call.respond(HttpStatusCode.BadRequest, "Missing Question Id")
 
         try {
-            db.deleteQuestion(questionId.toInt())
+            db.deleteQuestion(id.toInt())
             call.respond(HttpStatusCode.OK)
         } catch (e: Throwable) {
             application.log.error("Failed to delete question", e)
