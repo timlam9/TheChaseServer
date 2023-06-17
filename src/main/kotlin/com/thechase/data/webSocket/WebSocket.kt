@@ -18,7 +18,6 @@ import java.util.*
 
 private const val WEB_SOCKET_PATH = "/thechase"
 
-private var state = ChaseState()
 private val gson: Gson = Gson()
 
 fun Application.brainRouting(connectionsHandler: ConnectionsHandler) {
@@ -30,15 +29,11 @@ fun Application.brainRouting(connectionsHandler: ConnectionsHandler) {
                     is Disconnect -> connectionsHandler.sendDisconnectionMessageAndDestroyGame(payload)
                     is Start -> {
                         val newState: ChaseState = updateToInitialPlayingState()
-                        val stateMessage: SocketMessage.OutBound.State =
-                            SocketMessage.OutBound.State(chaseState = newState)
+                        val stateMessage = SocketMessage.OutBound.State(chaseState = newState)
                         println("< - - - - - - - - - - Message to send: $stateMessage")
 
                         sendMessageToAllConnections(connectionsHandler, stateMessage)
                     }
-
-                    is SocketMessage.OutBound.SocketError -> TODO()
-                    is SocketMessage.OutBound.State -> TODO()
                 }
             }
         }
@@ -50,7 +45,7 @@ fun Route.standardWebSocket(
         socket: DefaultWebSocketServerSession,
         clientId: String,
         frameTextReceived: String,
-        payload: SocketMessage
+        payload: SocketMessage.InBound
     ) -> Unit
 ) {
     webSocket(WEB_SOCKET_PATH) {
@@ -72,8 +67,9 @@ fun Route.standardWebSocket(
                     val type = when (jsonObject.get("type").asString) {
                         "connect" -> Connect::class.java
                         "start" -> Start::class.java
-                        else -> SocketMessage::class.java
+                        else -> SocketMessage.InBound::class.java
                     }
+
                     val payload = gson.fromJson(frameTextReceived, type)
                     handleFrame(this, clientId.toString(), frameTextReceived, payload)
                 }
@@ -124,14 +120,11 @@ private fun updateToInitialPlayingState(): ChaseState {
         showRightAnswer = true,
     )
 
-    val newState = ChaseState(
+    return ChaseState(
         board = initialList,
         gameStatus = GameStatus.PLAYING,
         currentQuestion = gameQuestion,
     )
-
-    println("New State: $newState")
-    return newState
 }
 
 private suspend fun sendMessageToAllConnections(
