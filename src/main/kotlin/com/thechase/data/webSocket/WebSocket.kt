@@ -7,6 +7,7 @@ import com.thechase.auth.MySession
 import com.thechase.data.webSocket.SocketMessage.InBound.*
 import com.thechase.data.webSocket.connections.ConnectionsHandler
 import com.thechase.domain.Brain
+import com.thechase.domain.models.GameQuestionOption
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
@@ -30,6 +31,17 @@ fun Application.brainRouting(connectionsHandler: ConnectionsHandler) {
                     is Disconnect -> connectionsHandler.sendDisconnectionMessageAndDestroyGame(payload)
                     is Start -> {
                         val newChaseState = brain.startGame()
+                        val messageToClient = SocketMessage.OutBound.State(chaseState = newChaseState)
+                        sendMessageToAllConnections(connectionsHandler, messageToClient)
+                    }
+
+                    is PlayerAnswer -> {
+                        val player = when (payload.email) {
+                            "chaser@gmail.com" -> GameQuestionOption.SelectedBy.CHASER
+                            "player@gmail.com" -> GameQuestionOption.SelectedBy.PLAYER
+                            else -> GameQuestionOption.SelectedBy.NONE
+                        }
+                        val newChaseState = brain.gameAnswer(player, payload.position)
                         val messageToClient = SocketMessage.OutBound.State(chaseState = newChaseState)
                         sendMessageToAllConnections(connectionsHandler, messageToClient)
                     }
@@ -66,6 +78,7 @@ fun Route.standardWebSocket(
                     val type = when (jsonObject.get("type").asString) {
                         "connect" -> Connect::class.java
                         "start" -> Start::class.java
+                        "player_answer" -> PlayerAnswer::class.java
                         else -> SocketMessage.InBound::class.java
                     }
 

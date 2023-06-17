@@ -45,6 +45,23 @@ class Brain(val repository: Repository = QuestionRepository()) {
         return _state
     }
 
+    fun gameAnswer(gamePlayer: GameQuestionOption.SelectedBy, answer: GameQuestionOption.Position): ChaseState {
+        val options: MutableList<GameQuestionOption> = _state.currentQuestion.options.toMutableList()
+        val questionToChange = options.first { it.position == answer }
+        val questionToAdd = questionToChange.copy(selectedBy = gamePlayer)
+
+        options.remove(questionToChange)
+        options.add(questionToAdd)
+        options.sortBy { it.position }
+
+        _state = _state.copy(
+            currentQuestion = _state.currentQuestion.copy(
+                options = options
+            )
+        )
+        return _state
+    }
+
     private fun initialPlayingState(): ChaseState {
         val initialList = mutableListOf(
             ChaseBox(position = 0, type = ChaseBox.RowType.CHASER_HEAD),
