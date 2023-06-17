@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 
 class Brain(val repository: Repository = QuestionRepository()) {
 
+    private var currentQuestionPosition = 0
     private var _state = ChaseState()
     private var gameQuestions: List<GameQuestion> = emptyList()
 
@@ -36,6 +37,9 @@ class Brain(val repository: Repository = QuestionRepository()) {
                     },
                     showRightAnswer = false
                 )
+            }
+            gameQuestions.forEachIndexed { index, gameQuestion ->
+                println("Question $index: $gameQuestion")
             }
         }
     }
@@ -80,5 +84,58 @@ class Brain(val repository: Repository = QuestionRepository()) {
             gameStatus = GameStatus.PLAYING,
             currentQuestion = gameQuestions.first(),
         )
+    }
+
+    fun showAnswer(): ChaseState {
+        _state = _state.copy(
+            currentQuestion = _state.currentQuestion.copy(
+                showRightAnswer = true
+            )
+        )
+
+        return _state
+    }
+
+    fun updateBoard(): ChaseState {
+        val board = _state.board.toMutableList()
+        val options = _state.currentQuestion.options
+
+        val rightAnswer = options.first { it.isRightAnswer }.position
+        val playerAnswer = options.first { it.selectedBy == GameQuestionOption.SelectedBy.PLAYER }.position
+        val chaserAnswer = options.first { it.selectedBy == GameQuestionOption.SelectedBy.CHASER }.position
+
+        println("New board 0: Right answer: $rightAnswer, Player: $playerAnswer, Chaser: $chaserAnswer")
+
+        if (chaserAnswer == rightAnswer) {
+            val chaserPosition = board.first { it.type == ChaseBox.RowType.CHASER_HEAD }.position
+            val nextPosition = chaserPosition + 1
+
+            board[chaserPosition] = ChaseBox(position = chaserPosition, type = ChaseBox.RowType.CHASER)
+            board[nextPosition] = ChaseBox(position = nextPosition, type = ChaseBox.RowType.CHASER_HEAD)
+            println("New board 1: $board")
+        }
+
+        if (playerAnswer == rightAnswer) {
+            val playerPosition = board.first { it.type == ChaseBox.RowType.PLAYER_HEAD }.position
+            val nextPosition = playerPosition + 1
+
+            board[playerPosition] = ChaseBox(position = playerPosition, type = ChaseBox.RowType.EMPTY)
+            board[nextPosition] = ChaseBox(position = nextPosition, type = ChaseBox.RowType.PLAYER_HEAD)
+            println("New board 2: $board")
+        }
+
+        println("New board 3: $board")
+        _state = _state.copy(board = board)
+
+        return _state
+    }
+
+    fun nextQuestion(): ChaseState {
+        currentQuestionPosition += 1
+        val nextQuestion = gameQuestions[currentQuestionPosition]
+
+        _state = _state.copy(currentQuestion = nextQuestion)
+
+        return _state
     }
 }

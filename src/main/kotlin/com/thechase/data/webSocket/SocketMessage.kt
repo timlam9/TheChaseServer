@@ -1,6 +1,7 @@
 package com.thechase.data.webSocket
 
 import com.thechase.domain.models.ChaseState
+import com.thechase.domain.models.GameAction
 import com.thechase.domain.models.GameQuestionOption
 
 sealed class SocketMessage {
@@ -17,6 +18,11 @@ sealed class SocketMessage {
             val type: String = "player_answer",
             val email: String,
             val position: GameQuestionOption.Position
+        ) : InBound()
+
+        data class HostAction(
+            val type: String = "host_action",
+            val action: GameAction
         ) : InBound()
     }
 
