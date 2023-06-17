@@ -1,4 +1,4 @@
-package com.thechase.repository
+package com.thechase.data.repository
 
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Table

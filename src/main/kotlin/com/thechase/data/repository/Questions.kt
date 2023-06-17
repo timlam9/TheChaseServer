@@ -1,7 +1,7 @@
-package com.thechase.repository
+package com.thechase.data.repository
 
-import com.thechase.models.Position
-import com.thechase.models.Type
+import com.thechase.data.models.Position
+import com.thechase.data.models.Type
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.id.EntityID

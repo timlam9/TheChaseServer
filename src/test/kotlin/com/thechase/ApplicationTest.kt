@@ -8,7 +8,7 @@ import io.ktor.server.testing.*
 import kotlin.test.*
 import io.ktor.http.*
 import com.thechase.plugins.*
-import com.thechase.repository.QuestionRepository
+import com.thechase.data.repository.QuestionRepository
 
 class ApplicationTest {
     @Test

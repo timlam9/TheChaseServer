@@ -1,9 +1,9 @@
-package com.thechase.repository
+package com.thechase.data.repository
 
-import com.thechase.models.Answer
-import com.thechase.models.Question
-import com.thechase.models.User
-import com.thechase.repository.DatabaseFactory.dbQuery
+import com.thechase.data.models.Answer
+import com.thechase.data.models.Question
+import com.thechase.data.models.User
+import com.thechase.data.repository.DatabaseFactory.dbQuery
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.InsertStatement
@@ -48,11 +48,11 @@ class QuestionRepository : Repository {
     }
 
     override suspend fun addQuestion(text: String, answers: List<Answer>): Question? {
-        var question: com.thechase.repository.Question? = null
+        var question: com.thechase.data.repository.Question? = null
 
         transaction {
             question = try {
-                com.thechase.repository.Question.new {
+                com.thechase.data.repository.Question.new {
                     this.text = text
                 }
             } catch (e: Exception) {
@@ -67,7 +67,7 @@ class QuestionRepository : Repository {
         transaction {
             answers.forEach { answer ->
                 try {
-                    com.thechase.repository.Answer.new {
+                    com.thechase.data.repository.Answer.new {
                         this.text = answer.text
                         this.type = answer.type
                         this.position = answer.position
@@ -88,12 +88,12 @@ class QuestionRepository : Repository {
 
     override suspend fun getQuestions(): List<Question> {
         return transaction {
-            com.thechase.repository.Question.all().map { it.toQuestion() }
+            com.thechase.data.repository.Question.all().map { it.toQuestion() }
         }
     }
 
     override suspend fun getQuestions(offset: Long, limit: Int): List<Question> {
-        return com.thechase.repository.Question.all().limit(n = limit, offset = offset).map { it.toQuestion() }
+        return com.thechase.data.repository.Question.all().limit(n = limit, offset = offset).map { it.toQuestion() }
     }
 
     override suspend fun deleteQuestion(questionId: Int) {
@@ -105,11 +105,11 @@ class QuestionRepository : Repository {
     }
 
     override suspend fun findQuestion(questionId: Int): Question? {
-        return com.thechase.repository.Question.findById(questionId)?.toQuestion()
+        return com.thechase.data.repository.Question.findById(questionId)?.toQuestion()
     }
 
-    private fun com.thechase.repository.Question.toQuestion(): Question {
-        val answers = com.thechase.repository.Answer
+    private fun com.thechase.data.repository.Question.toQuestion(): Question {
+        val answers = com.thechase.data.repository.Answer
             .find {
                 Answers.questionID eq id.value
             }

@@ -1,7 +1,7 @@
 package com.thechase.plugins
 
 import com.thechase.auth.JwtService
-import com.thechase.repository.Repository
+import com.thechase.data.repository.Repository
 import com.thechase.routes.questions
 import com.thechase.routes.users
 import io.ktor.http.*

@@ -2,7 +2,7 @@ package com.thechase.routes
 
 import com.thechase.API_VERSION
 import com.thechase.auth.MySession
-import com.thechase.repository.Repository
+import com.thechase.data.repository.Repository
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*

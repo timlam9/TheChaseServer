@@ -9,7 +9,7 @@ val hikaricp_version : String by project
 plugins {
     kotlin("jvm") version "1.8.22"
     id("io.ktor.plugin") version "2.3.1"
-                id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
 }
 
 group = "com.thechase"
@@ -37,7 +37,9 @@ dependencies {
     implementation("io.ktor:ktor-server-sessions:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
-    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktor_version")
+//    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktor_version")
+    implementation("io.ktor:ktor-serialization-gson:$ktor_version")
+//    implementation("io.ktor:ktor-gson:$ktor_version")
 
     // db
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
@@ -46,6 +48,9 @@ dependencies {
     implementation("com.h2database:h2:$h2_version")
     implementation("com.zaxxer:HikariCP:$hikaricp_version")
     implementation("org.postgresql:postgresql:$postgres_version")
+
+    // Ktor web socket
+    implementation("io.ktor:ktor-server-websockets:$ktor_version")
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")

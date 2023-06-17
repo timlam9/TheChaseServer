@@ -1,4 +1,4 @@
-package com.thechase.models
+package com.thechase.data.models
 
 
 import io.ktor.server.auth.*

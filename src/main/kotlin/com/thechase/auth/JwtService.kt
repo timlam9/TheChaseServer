@@ -3,7 +3,7 @@ package com.thechase.auth
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
-import com.thechase.models.User
+import com.thechase.data.models.User
 import java.util.*
 
 class JwtService {

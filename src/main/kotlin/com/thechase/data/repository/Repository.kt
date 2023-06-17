@@ -1,8 +1,8 @@
-package com.thechase.repository
+package com.thechase.data.repository
 
-import com.thechase.models.Answer
-import com.thechase.models.Question
-import com.thechase.models.User
+import com.thechase.data.models.Answer
+import com.thechase.data.models.Question
+import com.thechase.data.models.User
 
 
 interface Repository {

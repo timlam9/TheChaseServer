@@ -1,4 +1,4 @@
-package com.thechase.repository
+package com.thechase.data.repository
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource

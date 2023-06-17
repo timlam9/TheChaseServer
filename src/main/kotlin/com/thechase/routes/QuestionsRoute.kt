@@ -1,8 +1,9 @@
 package com.thechase.routes
 
 import com.thechase.API_VERSION
-import com.thechase.models.Question
-import com.thechase.repository.Repository
+import com.thechase.JWT
+import com.thechase.data.models.Question
+import com.thechase.data.repository.Repository
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -13,7 +14,7 @@ import io.ktor.server.routing.*
 const val QUESTIONS = "$API_VERSION/questions"
 
 fun Route.questions(db: Repository) {
-    authenticate("jwt") {
+    authenticate(JWT) {
         postQuestion(db)
         getQuestions(db)
         deleteQuestion(db)
