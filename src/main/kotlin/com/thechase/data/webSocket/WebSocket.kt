@@ -6,7 +6,7 @@ import com.thechase.JWT
 import com.thechase.auth.MySession
 import com.thechase.data.webSocket.SocketMessage.InBound.*
 import com.thechase.data.webSocket.connections.ConnectionsHandler
-import com.thechase.domain.models.*
+import com.thechase.domain.Brain
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
@@ -19,6 +19,7 @@ import java.util.*
 private const val WEB_SOCKET_PATH = "/thechase"
 
 private val gson: Gson = Gson()
+private val brain: Brain = Brain()
 
 fun Application.brainRouting(connectionsHandler: ConnectionsHandler) {
     routing {
@@ -28,11 +29,9 @@ fun Application.brainRouting(connectionsHandler: ConnectionsHandler) {
                     is Connect -> connectionsHandler.createConnection(socket, clientId, payload.email)
                     is Disconnect -> connectionsHandler.sendDisconnectionMessageAndDestroyGame(payload)
                     is Start -> {
-                        val newState: ChaseState = updateToInitialPlayingState()
-                        val stateMessage = SocketMessage.OutBound.State(chaseState = newState)
-                        println("< - - - - - - - - - - Message to send: $stateMessage")
-
-                        sendMessageToAllConnections(connectionsHandler, stateMessage)
+                        val newChaseState = brain.startGame()
+                        val messageToClient = SocketMessage.OutBound.State(chaseState = newChaseState)
+                        sendMessageToAllConnections(connectionsHandler, messageToClient)
                     }
                 }
             }
@@ -80,51 +79,6 @@ fun Route.standardWebSocket(
             // Handle Socket Closed
         }
     }
-}
-
-private fun updateToInitialPlayingState(): ChaseState {
-    val initialList = mutableListOf(
-        ChaseBox(position = 0, type = ChaseBox.RowType.CHASER_HEAD),
-        ChaseBox(position = 1, type = ChaseBox.RowType.EMPTY),
-        ChaseBox(position = 2, type = ChaseBox.RowType.EMPTY),
-        ChaseBox(position = 3, type = ChaseBox.RowType.PLAYER_HEAD),
-        ChaseBox(position = 4, type = ChaseBox.RowType.PLAYER),
-        ChaseBox(position = 5, type = ChaseBox.RowType.PLAYER),
-        ChaseBox(position = 6, type = ChaseBox.RowType.PLAYER),
-        ChaseBox(position = 7, type = ChaseBox.RowType.PLAYER),
-        ChaseBox(position = 8, type = ChaseBox.RowType.BANK),
-    )
-
-    val gameQuestion = GameQuestion(
-        title = "Πόσους λάκους έχει η φάβα μέσα σε μία φασολάδα με κομένη και χαροκαμένη στραπατσάδα;",
-        options = listOf(
-            GameQuestionOption(
-                title = "Η φάβα έχει 5 λάκκους",
-                position = GameQuestionOption.Position.A,
-                selectedBy = GameQuestionOption.SelectedBy.NONE,
-                isRightAnswer = false
-            ),
-            GameQuestionOption(
-                title = "Η φάβα έχει 50 λάκκους",
-                position = GameQuestionOption.Position.B,
-                selectedBy = GameQuestionOption.SelectedBy.PLAYER,
-                isRightAnswer = true
-            ),
-            GameQuestionOption(
-                title = "Η φάβα έχει 500 λάκκους",
-                position = GameQuestionOption.Position.C,
-                selectedBy = GameQuestionOption.SelectedBy.CHASER,
-                isRightAnswer = false
-            )
-        ),
-        showRightAnswer = true,
-    )
-
-    return ChaseState(
-        board = initialList,
-        gameStatus = GameStatus.PLAYING,
-        currentQuestion = gameQuestion,
-    )
 }
 
 private suspend fun sendMessageToAllConnections(
