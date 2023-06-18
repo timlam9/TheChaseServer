@@ -52,7 +52,12 @@ class Brain(val repository: Repository = QuestionRepository()) {
     fun gameAnswer(gamePlayer: GameQuestionOption.SelectedBy, answer: GameQuestionOption.Position): ChaseState {
         val options: MutableList<GameQuestionOption> = _state.currentQuestion.options.toMutableList()
         val questionToChange = options.first { it.position == answer }
-        val questionToAdd = questionToChange.copy(selectedBy = gamePlayer)
+        val questionToAdd =
+            if (questionToChange.selectedBy == GameQuestionOption.SelectedBy.NONE) {
+                questionToChange.copy(selectedBy = gamePlayer)
+            } else {
+                questionToChange.copy(selectedBy = GameQuestionOption.SelectedBy.BOTH)
+            }
 
         options.remove(questionToChange)
         options.add(questionToAdd)
@@ -101,12 +106,12 @@ class Brain(val repository: Repository = QuestionRepository()) {
         val options = _state.currentQuestion.options
 
         val rightAnswer = options.first { it.isRightAnswer }.position
-        val playerAnswer = options.first { it.selectedBy == GameQuestionOption.SelectedBy.PLAYER }.position
-        val chaserAnswer = options.first { it.selectedBy == GameQuestionOption.SelectedBy.CHASER }.position
+        val playerAnswer = options.firstOrNull { it.selectedBy == GameQuestionOption.SelectedBy.PLAYER }?.position
+        val chaserAnswer = options.firstOrNull { it.selectedBy == GameQuestionOption.SelectedBy.CHASER }?.position
 
         println("New board 0: Right answer: $rightAnswer, Player: $playerAnswer, Chaser: $chaserAnswer")
 
-        if (chaserAnswer == rightAnswer) {
+        if (chaserAnswer == null || chaserAnswer == rightAnswer) {
             val chaserPosition = board.first { it.type == ChaseBox.RowType.CHASER_HEAD }.position
             val nextPosition = chaserPosition + 1
 
@@ -115,7 +120,7 @@ class Brain(val repository: Repository = QuestionRepository()) {
             println("New board 1: $board")
         }
 
-        if (playerAnswer == rightAnswer) {
+        if (playerAnswer == null || playerAnswer == rightAnswer) {
             val playerPosition = board.first { it.type == ChaseBox.RowType.PLAYER_HEAD }.position
             val nextPosition = playerPosition + 1
 

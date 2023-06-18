@@ -17,6 +17,7 @@ data class GameQuestionOption(
 
         CHASER,
         PLAYER,
+        BOTH,
         NONE
     }
 }
