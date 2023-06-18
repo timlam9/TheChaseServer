@@ -12,8 +12,6 @@ sealed class SocketMessage {
 
         data class Disconnect(val type: String = "disconnect", val email: String) : InBound()
 
-        data class Start(val type: String = "start") : InBound()
-
         data class PlayerAnswer(
             val type: String = "player_answer",
             val email: String,

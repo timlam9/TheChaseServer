@@ -30,30 +30,26 @@ fun Application.brainRouting(connectionsHandler: ConnectionsHandler) {
                 when (payload) {
                     is Connect -> connectionsHandler.createConnection(socket, clientId, payload.email)
                     is Disconnect -> connectionsHandler.sendDisconnectionMessageAndDestroyGame(payload)
-                    is Start -> {
-                        val newChaseState = brain.startGame()
-                        val messageToClient = SocketMessage.OutBound.State(chaseState = newChaseState)
-                        sendMessageToAllConnections(connectionsHandler, messageToClient)
-                    }
-
                     is PlayerAnswer -> {
                         val player = when (payload.email) {
                             "chaser@gmail.com" -> GameQuestionOption.SelectedBy.CHASER
                             "player@gmail.com" -> GameQuestionOption.SelectedBy.PLAYER
                             else -> GameQuestionOption.SelectedBy.NONE
                         }
+
                         val newChaseState = brain.gameAnswer(player, payload.position)
                         val messageToClient = SocketMessage.OutBound.State(chaseState = newChaseState)
                         sendMessageToAllConnections(connectionsHandler, messageToClient)
                     }
 
                     is HostAction -> {
-                        val newChaseState = when(payload.action) {
+                        val newChaseState = when (payload.action) {
                             GameAction.START -> brain.startGame()
                             GameAction.SHOW_ANSWER -> brain.showAnswer()
                             GameAction.UPDATE_BOARD -> brain.updateBoard()
                             GameAction.NEXT_QUESTION -> brain.nextQuestion()
                         }
+
                         val messageToClient = SocketMessage.OutBound.State(chaseState = newChaseState)
                         sendMessageToAllConnections(connectionsHandler, messageToClient)
                     }
@@ -89,7 +85,6 @@ fun Route.standardWebSocket(
 
                     val type = when (jsonObject.get("type").asString) {
                         "connect" -> Connect::class.java
-                        "start" -> Start::class.java
                         "player_answer" -> PlayerAnswer::class.java
                         "host_action" -> HostAction::class.java
                         else -> SocketMessage.InBound::class.java
