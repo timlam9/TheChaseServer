@@ -45,8 +45,11 @@ fun Application.brainRouting(connectionsHandler: ConnectionsHandler) {
                     is HostAction -> {
                         val newChaseState = when (payload.action) {
                             GameAction.START -> brain.startGame()
-                            GameAction.SHOW_ANSWER -> brain.showAnswer()
-                            GameAction.UPDATE_BOARD -> brain.updateBoard()
+                            GameAction.SHOW_PLAYER_ANSWER -> brain.showPlayerAnswer()
+                            GameAction.SHOW_RIGHT_ANSWER -> brain.showRightAnswer()
+                            GameAction.SHOW_CHASER_ANSWER -> brain.showChaserAnswer()
+                            GameAction.MOVE_PLAYER -> brain.movePlayer()
+                            GameAction.MOVE_CHASER -> brain.moveChaser()
                             GameAction.NEXT_QUESTION -> brain.nextQuestion()
                         }
 

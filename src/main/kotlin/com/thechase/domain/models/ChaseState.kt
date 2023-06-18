@@ -6,6 +6,8 @@ data class ChaseState(
     val currentQuestion: GameQuestion = GameQuestion(
         title = "",
         options = emptyList(),
-        showRightAnswer = true,
+        showRightAnswer = false,
+        showPlayerAnswer = false,
+        showChaserAnswer = false,
     )
 )
