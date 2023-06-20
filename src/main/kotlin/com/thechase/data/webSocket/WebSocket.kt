@@ -44,7 +44,7 @@ fun Application.brainRouting(connectionsHandler: ConnectionsHandler) {
 
                     is HostAction -> {
                         val newChaseState = when (payload.action) {
-                            GameAction.START -> brain.startGame()
+                            GameAction.START -> brain.startGame(payload.questionID)
                             GameAction.SHOW_PLAYER_ANSWER -> brain.showPlayerAnswer()
                             GameAction.SHOW_RIGHT_ANSWER -> brain.showRightAnswer()
                             GameAction.SHOW_CHASER_ANSWER -> brain.showChaserAnswer()
@@ -77,7 +77,7 @@ fun Route.standardWebSocket(
 //            close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "clientEmail is null"))
 //            return@webSocket
 //        }
-        println("clientEmail: $clientId")
+        println("- - - - - - - - - - - -  - > client email: $clientId")
 
         try {
             incoming.consumeEach { frame ->
@@ -94,10 +94,12 @@ fun Route.standardWebSocket(
                     }
 
                     val payload = gson.fromJson(frameTextReceived, type)
+                    println("- - - - - - - - - - - -  - > MESSAGE_RECEIVED: $payload")
                     handleFrame(this, clientId.toString(), frameTextReceived, payload)
                 }
             }
         } catch (e: Exception) {
+            println("- - - - - - - - - - - -  - > MESSAGE_RECEIVED ERROR: ${e.message}")
             e.printStackTrace()
         } finally {
             // Handle Socket Closed

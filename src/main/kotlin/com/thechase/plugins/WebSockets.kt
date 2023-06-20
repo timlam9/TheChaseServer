@@ -8,8 +8,8 @@ import java.time.Duration
 fun Application.configureWebSockets() {
     install(WebSockets) {
         contentConverter = GsonWebsocketContentConverter()
-        pingPeriod = Duration.ofSeconds(15)
-        timeout = Duration.ofSeconds(15)
+        pingPeriod = Duration.ofSeconds(20)
+        timeout = Duration.ofSeconds(20)
         maxFrameSize = Long.MAX_VALUE
         masking = false
     }

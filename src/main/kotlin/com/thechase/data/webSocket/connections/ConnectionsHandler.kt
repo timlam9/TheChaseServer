@@ -9,15 +9,15 @@ import io.ktor.websocket.*
 
 private val gson = Gson()
 class ConnectionsHandler(private val application: Application) {
-    val connections = Collections.synchronizedSet<ChaseConnection?>(LinkedHashSet())
+    val connections: MutableSet<ChaseConnection> = Collections.synchronizedSet(LinkedHashSet())
 
     fun createConnection(serverSession: DefaultWebSocketServerSession, id: String, email: String) {
         val thisConnection = ChaseConnection(serverSession, email)
         connections += thisConnection
 
-        application.log.info(" ")
-        application.log.info("------ Connections: ${connections.size}")
-        application.log.info(" ")
+        application.log.info("------------------------------------------")
+        application.log.info("---> Connections: ${connections.size} <---")
+        application.log.info("------------------------------------------")
     }
 
     suspend fun sendDisconnectionMessageAndDestroyGame(message: SocketMessage.InBound.Disconnect) {

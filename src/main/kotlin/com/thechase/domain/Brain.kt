@@ -46,8 +46,8 @@ class Brain(val repository: Repository = QuestionRepository()) {
         }
     }
 
-    fun startGame(): ChaseState {
-        _state = initialPlayingState()
+    fun startGame(questionID: Int?): ChaseState {
+        _state = initialPlayingState(questionID ?: 0)
         return _state
     }
 
@@ -73,7 +73,7 @@ class Brain(val repository: Repository = QuestionRepository()) {
         return _state
     }
 
-    private fun initialPlayingState(): ChaseState {
+    private fun initialPlayingState(questionIndex: Int): ChaseState {
         val initialList = mutableListOf(
             ChaseBox(position = 0, type = ChaseBox.RowType.CHASER_HEAD),
             ChaseBox(position = 1, type = ChaseBox.RowType.EMPTY),
@@ -89,7 +89,7 @@ class Brain(val repository: Repository = QuestionRepository()) {
         return ChaseState(
             board = initialList,
             gameStatus = GameStatus.PLAYING,
-            currentQuestion = gameQuestions.first(),
+            currentQuestion = gameQuestions[questionIndex],
         )
     }
 
@@ -133,6 +133,7 @@ class Brain(val repository: Repository = QuestionRepository()) {
         }
 
         _state = _state.copy(board = board)
+        _state = checkForGameOver()
 
         return _state
     }
@@ -153,6 +154,22 @@ class Brain(val repository: Repository = QuestionRepository()) {
         }
 
         _state = _state.copy(board = board)
+        _state = checkForGameOver()
+
+        return _state
+    }
+
+    private fun checkForGameOver(): ChaseState {
+        val playerPosition = _state.board.firstOrNull { it.type == ChaseBox.RowType.PLAYER_HEAD }?.position
+        val homePosition = _state.board.size - 1
+        println("Player position: $playerPosition, home position: $homePosition")
+
+        val newState = when (playerPosition) {
+            homePosition -> _state.copy(gameStatus = GameStatus.PLAYER_WIN)
+            null -> _state.copy(gameStatus = GameStatus.CHASER_WIN)
+            else -> _state
+        }
+        _state = newState
 
         return _state
     }
