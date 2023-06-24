@@ -99,7 +99,11 @@ class Brain(val repository: Repository = QuestionRepository()) {
         currentQuestionPosition += 1
         val nextQuestion = gameQuestions[currentQuestionPosition]
 
-        _state = _state.copy(currentQuestion = nextQuestion)
+        _state = when (_state.gameStatus) {
+            GameStatus.PLAYER_WIN, GameStatus.CHASER_WIN -> startGame(nextQuestion.id.toIntOrNull())
+            GameStatus.PLAYING -> _state.copy(currentQuestion = nextQuestion)
+            else -> _state
+        }
 
         return _state
     }
