@@ -7,7 +7,6 @@ import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Table
 
 object Questions : IntIdTable() {
     val text: Column<String> = varchar("text", 500)
@@ -22,9 +21,9 @@ class Question(id: EntityID<Int>) : Entity<Int>(id) {
 
 object Answers : IntIdTable() {
     val text: Column<String> = varchar("text", 80)
-    val type: Column<Type> = enumeration("type", Type::class)
-    val position: Column<Position> = enumeration("position", Position::class)
-    val questionID = integer("QUESTIONS_ID").references(Questions.id)
+    val type: Column<Type> = enumerationByName("chasetype",10, Type::class)
+    val position: Column<Position> = enumerationByName("chaseposition",10, Position::class)
+    val questionID = integer("QUESTION_ID").references(Questions.id)
 }
 
 class Answer(id: EntityID<Int>) : Entity<Int>(id) {
