@@ -19,6 +19,7 @@ class Brain(val repository: Repository = QuestionRepository()) {
         CoroutineScope(Dispatchers.IO).launch {
             gameQuestions = repository.getQuestions().map {
                 GameQuestion(
+                    id = it.id.toString(),
                     title = it.text,
                     options = it.answers.map { answer ->
                         GameQuestionOption(
@@ -47,6 +48,7 @@ class Brain(val repository: Repository = QuestionRepository()) {
     }
 
     fun startGame(questionID: Int?): ChaseState {
+        currentQuestionPosition = questionID ?: 0
         _state = initialPlayingState(questionID ?: 0)
         return _state
     }
