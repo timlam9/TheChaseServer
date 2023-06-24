@@ -1,5 +1,6 @@
 package com.thechase.data.webSocket
 
+import com.thechase.domain.models.ChaseSoundEvent
 import com.thechase.domain.models.ChaseState
 import com.thechase.domain.models.GameAction
 import com.thechase.domain.models.GameQuestionOption
@@ -30,5 +31,7 @@ sealed class SocketMessage {
         data class SocketError(val type: String = "socket_error", val errorType: String) : OutBound()
 
         data class State(val type: String = "state", val chaseState: ChaseState) : OutBound()
+
+        data class Event(val type: String = "event", val event: ChaseSoundEvent) : OutBound()
     }
 }

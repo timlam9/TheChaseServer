@@ -7,6 +7,7 @@ import com.thechase.auth.MySession
 import com.thechase.data.webSocket.SocketMessage.InBound.*
 import com.thechase.data.webSocket.connections.ConnectionsHandler
 import com.thechase.domain.Brain
+import com.thechase.domain.models.ChaseSoundEvent
 import com.thechase.domain.models.GameAction
 import com.thechase.domain.models.GameQuestionOption
 import io.ktor.server.application.*
@@ -37,8 +38,19 @@ fun Application.brainRouting(connectionsHandler: ConnectionsHandler) {
                             else -> GameQuestionOption.SelectedBy.NONE
                         }
 
+                        val soundEvent = when (player) {
+                            GameQuestionOption.SelectedBy.CHASER -> ChaseSoundEvent.CHASER_LOCK
+                            GameQuestionOption.SelectedBy.PLAYER -> ChaseSoundEvent.PLAYER_LOCK
+                            else -> null
+                        }
+                        soundEvent?.let { event ->
+                            val messageToHost = SocketMessage.OutBound.Event(event = event)
+                            sendMessageToHostConnection(connectionsHandler, messageToHost)
+                        }
+
                         val newChaseState = brain.gameAnswer(player, payload.position)
                         val messageToClient = SocketMessage.OutBound.State(chaseState = newChaseState)
+
                         sendMessageToAllConnections(connectionsHandler, messageToClient)
                     }
 
@@ -53,6 +65,22 @@ fun Application.brainRouting(connectionsHandler: ConnectionsHandler) {
                             GameAction.MOVE_CHASER -> brain.moveChaser()
                             GameAction.MOVE_CHASER_BACK -> brain.moveChaserBack()
                             GameAction.NEXT_QUESTION -> brain.nextQuestion()
+                        }
+
+                        val soundEvent = when (payload.action) {
+                            GameAction.START -> ChaseSoundEvent.INTRO
+                            GameAction.SHOW_PLAYER_ANSWER -> ChaseSoundEvent.PLAYER_ANSWER
+                            GameAction.SHOW_RIGHT_ANSWER -> ChaseSoundEvent.CORRECT_ANSWER
+                            GameAction.SHOW_CHASER_ANSWER -> ChaseSoundEvent.CHASER_ANSWER
+                            GameAction.MOVE_PLAYER -> ChaseSoundEvent.PLAYER_MOVE
+                            GameAction.MOVE_PLAYER_BACK -> null
+                            GameAction.MOVE_CHASER -> ChaseSoundEvent.CHASER_MOVE
+                            GameAction.MOVE_CHASER_BACK -> null
+                            GameAction.NEXT_QUESTION -> ChaseSoundEvent.QUESTION_APPEAR
+                        }
+                        soundEvent?.let { event ->
+                            val messageToHost = SocketMessage.OutBound.Event(event = event)
+                            sendMessageToHostConnection(connectionsHandler, messageToHost)
                         }
 
                         val messageToClient = SocketMessage.OutBound.State(chaseState = newChaseState)
@@ -118,4 +146,14 @@ private suspend fun sendMessageToAllConnections(
         val message = gson.toJson(stateMessage)
         it.session.send(Frame.Text(message))
     }
+}
+
+private suspend fun sendMessageToHostConnection(
+    connectionsHandler: ConnectionsHandler,
+    stateMessage: SocketMessage.OutBound
+) {
+    val hostConnection = connectionsHandler.connections.first { it.email == "host@gmail.com" }
+    println("< - - - - - - - - - - Send to host: $hostConnection")
+    val message = gson.toJson(stateMessage)
+    hostConnection.session.send(Frame.Text(message))
 }
