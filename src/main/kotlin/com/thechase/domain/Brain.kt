@@ -140,6 +140,22 @@ class Brain(val repository: Repository = QuestionRepository()) {
         return _state
     }
 
+    fun movePlayerBack(): ChaseState {
+        val board = _state.board.toMutableList()
+
+        val playerPosition = board.first { it.type == ChaseBox.RowType.PLAYER_HEAD }.position
+        val previousPosition = playerPosition - 1
+
+        if (playerPosition > 3) {
+            board[playerPosition] = ChaseBox(position = playerPosition, type = ChaseBox.RowType.PLAYER)
+            board[previousPosition] = ChaseBox(position = previousPosition, type = ChaseBox.RowType.PLAYER_HEAD)
+
+            _state = _state.copy(board = board)
+        }
+
+        return _state
+    }
+
     fun moveChaser(): ChaseState {
         val board = _state.board.toMutableList()
         val options = _state.currentQuestion.options
@@ -157,6 +173,22 @@ class Brain(val repository: Repository = QuestionRepository()) {
 
         _state = _state.copy(board = board)
         _state = checkForGameOver()
+
+        return _state
+    }
+
+    fun moveChaserBack(): ChaseState {
+        val board = _state.board.toMutableList()
+
+        val chaserPosition = board.first { it.type == ChaseBox.RowType.CHASER_HEAD }.position
+        val previousPosition = chaserPosition - 1
+
+        if (chaserPosition > 0) {
+            board[chaserPosition] = ChaseBox(position = chaserPosition, type = ChaseBox.RowType.EMPTY)
+            board[previousPosition] = ChaseBox(position = previousPosition, type = ChaseBox.RowType.CHASER_HEAD)
+
+            _state = _state.copy(board = board)
+        }
 
         return _state
     }

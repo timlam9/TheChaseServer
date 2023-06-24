@@ -49,7 +49,9 @@ fun Application.brainRouting(connectionsHandler: ConnectionsHandler) {
                             GameAction.SHOW_RIGHT_ANSWER -> brain.showRightAnswer()
                             GameAction.SHOW_CHASER_ANSWER -> brain.showChaserAnswer()
                             GameAction.MOVE_PLAYER -> brain.movePlayer()
+                            GameAction.MOVE_PLAYER_BACK -> brain.movePlayerBack()
                             GameAction.MOVE_CHASER -> brain.moveChaser()
+                            GameAction.MOVE_CHASER_BACK -> brain.moveChaserBack()
                             GameAction.NEXT_QUESTION -> brain.nextQuestion()
                         }
 
