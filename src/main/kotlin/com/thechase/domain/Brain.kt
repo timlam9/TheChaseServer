@@ -103,7 +103,7 @@ class Brain(val repository: Repository = QuestionRepository()) {
 
         _state = when (_state.gameStatus) {
             GameStatus.PLAYER_WIN, GameStatus.CHASER_WIN -> startGame(nextQuestion.id.toIntOrNull())
-            GameStatus.PLAYING -> _state.copy(currentQuestion = nextQuestion)
+            GameStatus.PLAYING, GameStatus.FINAL -> _state.copy(currentQuestion = nextQuestion)
             else -> _state
         }
 
