@@ -213,4 +213,44 @@ class Brain(val repository: Repository = QuestionRepository()) {
 
         return _state
     }
+
+    fun startFinal(timer: Int): ChaseState {
+        _state = _state.copy(gameStatus = GameStatus.FINAL, final = ChaseFinal(timer = timer, startTimer = true))
+        return _state
+    }
+
+    fun addChaserFinalPoint(): ChaseState {
+        _state = _state.copy(final = _state.final.copy(chaserPoints = _state.final.chaserPoints + 1))
+        return _state
+    }
+
+    fun addPlayerFinalPoint(): ChaseState {
+        _state = _state.copy(final = _state.final.copy(playersPoints = _state.final.playersPoints + 1))
+        return _state
+    }
+
+    fun removeChaserFinalPoint(): ChaseState {
+        _state = _state.copy(final = _state.final.copy(chaserPoints = _state.final.chaserPoints - 1))
+        return _state
+    }
+
+    fun removePlayerFinalPoint(): ChaseState {
+        _state = _state.copy(final = _state.final.copy(playersPoints = _state.final.playersPoints - 1))
+        return _state
+    }
+
+    fun pauseFinalTimer(): ChaseState {
+        _state = _state.copy(final = _state.final.copy(pauseTimer = true))
+        return _state
+    }
+
+    fun resumeFinalTimer(): ChaseState {
+        _state = _state.copy(final = _state.final.copy(pauseTimer = false))
+        return _state
+    }
+
+    fun resetFinalTimer(): ChaseState {
+        _state = _state.copy(final = _state.final.copy(resetTimer = _state.final.resetTimer + 1))
+        return _state
+    }
 }

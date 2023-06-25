@@ -10,5 +10,6 @@ data class ChaseState(
         showRightAnswer = false,
         showPlayerAnswer = false,
         showChaserAnswer = false,
-    )
+    ),
+    val final: ChaseFinal = ChaseFinal()
 )

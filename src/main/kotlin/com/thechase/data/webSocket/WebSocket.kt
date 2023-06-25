@@ -88,8 +88,16 @@ fun Application.brainRouting(connectionsHandler: ConnectionsHandler) {
                             GameAction.MOVE_CHASER -> brain.moveChaser()
                             GameAction.MOVE_CHASER_BACK -> brain.moveChaserBack()
                             GameAction.NEXT_QUESTION -> brain.nextQuestion()
+                            GameAction.START_FINAL -> brain.startFinal(payload.timer)
+                            GameAction.ADD_CHASER_FINAL_POINT -> brain.addChaserFinalPoint()
+                            GameAction.ADD_PLAYER_FINAL_POINT -> brain.addPlayerFinalPoint()
+                            GameAction.REMOVE_CHASER_FINAL_POINT -> brain.removeChaserFinalPoint()
+                            GameAction.REMOVE_PLAYER_FINAL_POINT -> brain.removePlayerFinalPoint()
+                            GameAction.PAUSE_FINAL_TIMER -> brain.pauseFinalTimer()
+                            GameAction.RESUME_FINAL_TIMER -> brain.resumeFinalTimer()
                             GameAction.CHANGE_PLAYER -> brain.getCurrentState()
                             GameAction.PLAY_INTRO -> brain.getCurrentState()
+                            GameAction.RESET_FINAL_TIMER -> brain.resetFinalTimer()
                         }
 
                         val soundEvent = when (payload.action) {
@@ -104,6 +112,14 @@ fun Application.brainRouting(connectionsHandler: ConnectionsHandler) {
                             GameAction.NEXT_QUESTION -> ChaseSoundEvent.QUESTION_APPEAR
                             GameAction.CHANGE_PLAYER -> ChaseSoundEvent.CHANGE_PLAYER
                             GameAction.PLAY_INTRO -> ChaseSoundEvent.INTRO
+                            GameAction.START_FINAL -> null
+                            GameAction.ADD_CHASER_FINAL_POINT -> null
+                            GameAction.ADD_PLAYER_FINAL_POINT -> null
+                            GameAction.REMOVE_CHASER_FINAL_POINT -> null
+                            GameAction.REMOVE_PLAYER_FINAL_POINT -> null
+                            GameAction.PAUSE_FINAL_TIMER -> null
+                            GameAction.RESUME_FINAL_TIMER -> null
+                            GameAction.RESET_FINAL_TIMER -> null
                         }
                         soundEvent?.let { event ->
                             val messageToHost = SocketMessage.OutBound.Event(event = event)
