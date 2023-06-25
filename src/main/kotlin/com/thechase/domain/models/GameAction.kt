@@ -10,5 +10,7 @@ enum class GameAction {
     MOVE_PLAYER_BACK,
     MOVE_CHASER,
     MOVE_CHASER_BACK,
-    NEXT_QUESTION
+    NEXT_QUESTION,
+    CHANGE_PLAYER,
+    PLAY_INTRO
 }

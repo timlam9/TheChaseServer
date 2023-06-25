@@ -10,6 +10,7 @@ import com.thechase.domain.Brain
 import com.thechase.domain.models.ChaseSoundEvent
 import com.thechase.domain.models.GameAction
 import com.thechase.domain.models.GameQuestionOption
+import com.thechase.domain.models.GameStatus
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
@@ -43,13 +44,35 @@ fun Application.brainRouting(connectionsHandler: ConnectionsHandler) {
                             GameQuestionOption.SelectedBy.PLAYER -> ChaseSoundEvent.PLAYER_LOCK
                             else -> null
                         }
-                        soundEvent?.let { event ->
-                            val messageToHost = SocketMessage.OutBound.Event(event = event)
-                            sendMessageToHostConnection(connectionsHandler, messageToHost)
-                        }
 
                         val newChaseState = brain.gameAnswer(player, payload.position)
                         val messageToClient = SocketMessage.OutBound.State(chaseState = newChaseState)
+
+                        soundEvent?.let { event ->
+                            val messageToHost = SocketMessage.OutBound.Event(event = event)
+                            sendMessageToHostConnection(connectionsHandler, messageToHost)
+
+                            val playerNotAnswered = newChaseState.currentQuestion.options.firstOrNull {
+                                it.selectedBy == GameQuestionOption.SelectedBy.PLAYER
+                            } == null
+                            val chaserNotAnswered = newChaseState.currentQuestion.options.firstOrNull {
+                                it.selectedBy == GameQuestionOption.SelectedBy.CHASER
+                            } == null
+                            val bothNotAnswered = newChaseState.currentQuestion.options.firstOrNull {
+                                it.selectedBy == GameQuestionOption.SelectedBy.BOTH
+                            } == null
+
+                            if ((playerNotAnswered || chaserNotAnswered) && bothNotAnswered) {
+                                val countDownEvent =
+                                    SocketMessage.OutBound.Event(event = ChaseSoundEvent.QUESTION_COUNTDOWN)
+                                sendMessageToHostConnection(connectionsHandler, countDownEvent)
+                            }
+                            if (!bothNotAnswered || (!playerNotAnswered && !chaserNotAnswered)) {
+                                val stopCountDownEvent =
+                                    SocketMessage.OutBound.Event(event = ChaseSoundEvent.STOP_QUESTION_COUNTDOWN)
+                                sendMessageToHostConnection(connectionsHandler, stopCountDownEvent)
+                            }
+                        }
 
                         sendMessageToAllConnections(connectionsHandler, messageToClient)
                     }
@@ -65,10 +88,12 @@ fun Application.brainRouting(connectionsHandler: ConnectionsHandler) {
                             GameAction.MOVE_CHASER -> brain.moveChaser()
                             GameAction.MOVE_CHASER_BACK -> brain.moveChaserBack()
                             GameAction.NEXT_QUESTION -> brain.nextQuestion()
+                            GameAction.CHANGE_PLAYER -> brain.getCurrentState()
+                            GameAction.PLAY_INTRO -> brain.getCurrentState()
                         }
 
                         val soundEvent = when (payload.action) {
-                            GameAction.START -> ChaseSoundEvent.INTRO
+                            GameAction.START -> ChaseSoundEvent.QUESTION_APPEAR
                             GameAction.SHOW_PLAYER_ANSWER -> ChaseSoundEvent.PLAYER_ANSWER
                             GameAction.SHOW_RIGHT_ANSWER -> ChaseSoundEvent.CORRECT_ANSWER
                             GameAction.SHOW_CHASER_ANSWER -> ChaseSoundEvent.CHASER_ANSWER
@@ -77,10 +102,20 @@ fun Application.brainRouting(connectionsHandler: ConnectionsHandler) {
                             GameAction.MOVE_CHASER -> ChaseSoundEvent.CHASER_MOVE
                             GameAction.MOVE_CHASER_BACK -> null
                             GameAction.NEXT_QUESTION -> ChaseSoundEvent.QUESTION_APPEAR
+                            GameAction.CHANGE_PLAYER -> ChaseSoundEvent.CHANGE_PLAYER
+                            GameAction.PLAY_INTRO -> ChaseSoundEvent.INTRO
                         }
                         soundEvent?.let { event ->
                             val messageToHost = SocketMessage.OutBound.Event(event = event)
                             sendMessageToHostConnection(connectionsHandler, messageToHost)
+
+                            if (newChaseState.gameStatus == GameStatus.PLAYER_WIN) {
+                                val playerWinEvent = SocketMessage.OutBound.Event(event = ChaseSoundEvent.PLAYER_WINS)
+                                sendMessageToHostConnection(connectionsHandler, playerWinEvent)
+                            } else if (newChaseState.gameStatus == GameStatus.CHASER_WIN) {
+                                val chaserWinEvent = SocketMessage.OutBound.Event(event = ChaseSoundEvent.CHASER_WINS)
+                                sendMessageToHostConnection(connectionsHandler, chaserWinEvent)
+                            }
                         }
 
                         val messageToClient = SocketMessage.OutBound.State(chaseState = newChaseState)

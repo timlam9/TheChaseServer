@@ -47,6 +47,8 @@ class Brain(val repository: Repository = QuestionRepository()) {
         }
     }
 
+    fun getCurrentState() = _state
+
     fun startGame(questionID: Int?): ChaseState {
         currentQuestionPosition = questionID ?: 0
         _state = initialPlayingState(questionID ?: 0)
