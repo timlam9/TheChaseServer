@@ -152,7 +152,7 @@ class Brain(val repository: Repository = QuestionRepository()) {
         val playerPosition = board.first { it.type == ChaseBox.RowType.PLAYER_HEAD }.position
         val previousPosition = playerPosition - 1
 
-        if (playerPosition > 3) {
+        if (playerPosition >= 3) {
             board[playerPosition] = ChaseBox(position = playerPosition, type = ChaseBox.RowType.PLAYER)
             board[previousPosition] = ChaseBox(position = previousPosition, type = ChaseBox.RowType.PLAYER_HEAD)
 
